@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: splunk-postgres
+    environment:
+      POSTGRES_DB: splunk_db
+      POSTGRES_USER: splunk_user
+      POSTGRES_PASSWORD: splunk_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - splunk-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: splunk-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - splunk-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: splunk-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - splunk-network
+
+  api-gateway:
+    build:
+      context: ../backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: splunk-api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - event-service
+      - detection-service
+    networks:
+      - splunk-network
+
+  auth-service:
+    build:
+      context: ../backend/auth-service
+      dockerfile: Dockerfile
+    container_name: splunk-auth-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/splunk_db
+      SPRING_DATASOURCE_USERNAME: splunk_user
+      SPRING_DATASOURCE_PASSWORD: splunk_pass
+    networks:
+      - splunk-network
+
+  event-service:
+    build:
+      context: ../backend/event-service
+      dockerfile: Dockerfile
+    container_name: splunk-event-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/splunk_db
+      SPRING_DATASOURCE_USERNAME: splunk_user
+      SPRING_DATASOURCE_PASSWORD: splunk_pass
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - splunk-network
+
+  detection-service:
+    build:
+      context: ../backend/detection-service
+      dockerfile: Dockerfile
+    container_name: splunk-detection-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres
+      - kafka
+      - ai-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/splunk_db
+      SPRING_DATASOURCE_USERNAME: splunk_user
+      SPRING_DATASOURCE_PASSWORD: splunk_pass
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      AI_SERVICE_URL: http://ai-service:8000
+    networks:
+      - splunk-network
+
+  ai-service:
+    build:
+      context: ../ai-service
+      dockerfile: Dockerfile
+    container_name: splunk-ai-service
+    ports:
+      - "8000:8000"
+    environment:
+      OLLAMA_URL: http://host.docker.internal:11434
+    networks:
+      - splunk-network
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: splunk-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - splunk-network
+
+networks:
+  splunk-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
