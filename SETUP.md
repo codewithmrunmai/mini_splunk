@@ -1,4 +1,4 @@
-# Mini Splunk - Quick Setup Guide
+# SentinelAI - Quick Setup Guide
 
 This guide works for both **macOS** and **Windows**.
 
@@ -84,10 +84,10 @@ brew install git
 ```bash
 # If cloning from repository
 git clone <repository-url>
-cd mini_splunk
+cd sentinelai
 
 # Or just navigate to the project directory
-cd /path/to/mini_splunk
+cd /path/to/sentinelai
 ```
 
 ### Step 2: Navigate to Infrastructure Directory
@@ -341,7 +341,7 @@ ollama serve
 ollama pull llama2  # in new terminal
 
 # 3. Navigate and start
-cd mini_splunk/infra
+cd sentinelai/infra
 docker-compose up --build -d
 
 # 4. Open browser
@@ -359,7 +359,7 @@ ollama serve
 ollama pull llama2  # in new terminal
 
 # 3. Navigate and start
-cd mini_splunk\infra
+cd sentinelai\infra
 docker-compose up --build -d
 
 # 4. Open browser

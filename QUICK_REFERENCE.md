@@ -1,4 +1,4 @@
-# Quick Reference - Mini Splunk
+# Quick Reference - SentinelAI
 
 ## One-Time Setup
 
@@ -23,7 +23,7 @@ ollama pull llama2
 ## Start Application (Both Platforms)
 
 ```bash
-cd mini_splunk/infra
+cd sentinelai/infra
 docker-compose up --build -d
 ```
 
@@ -84,7 +84,7 @@ docker-compose up --build
 ## Project Structure
 
 ```
-mini_splunk/
+sentinelai/
 ├── frontend/           # React (Port 3000)
 ├── backend/
 │   ├── api-gateway/   # Port 8080

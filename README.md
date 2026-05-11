@@ -1,4 +1,4 @@
-# Mini Splunk - Log Intelligence System
+# SentinelAI - Intelligent Log Monitoring System
 
 A microservices-based log aggregation and analysis platform with AI-powered insights.
 
@@ -43,7 +43,7 @@ Frontend (React) → API Gateway → Microservices
 
 ```bash
 # Navigate to project
-cd mini_splunk/infra
+cd sentinelai/infra
 
 # Start all services (macOS/Windows)
 docker-compose up --build -d
@@ -59,7 +59,7 @@ docker-compose up --build -d
 ## Project Structure
 
 ```
-mini_splunk/
+sentinelai/
 ├── frontend/              # React frontend
 ├── backend/
 │   ├── api-gateway/      # API Gateway

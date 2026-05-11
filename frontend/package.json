@@ -1,5 +1,5 @@
 {
-  "name": "mini-splunk-frontend",
+  "name": "sentinelai-frontend",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
